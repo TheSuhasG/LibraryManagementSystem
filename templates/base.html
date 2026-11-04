@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="brand">
+                <h2>Library<br><small style="font-weight: 400; font-size:0.8rem; color:#94a3b8;">Management System</small></h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
+                <li><a href="/books" class="{% if request.path.startswith('/books') %}active{% endif %}">Books</a></li>
+                <li><a href="/members" class="{% if request.path.startswith('/members') %}active{% endif %}">Members</a></li>
+                <li><a href="/issue" class="{% if request.path == '/issue' %}active{% endif %}">Issue a book</a></li>
+                <li><a href="/loans" class="{% if request.path == '/loans' %}active{% endif %}">Loans and returns</a></li>
+                <li><a href="/fines" class="{% if request.path == '/fines' %}active{% endif %}">Fines</a></li>
+                <li><a href="/reports" class="{% if request.path.startswith('/reports') %}active{% endif %}">Reports</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            MySQL + Python + HTML<br>
+            Introduction to DBMS mini project
+        </div>
+    </div>
+
+    <div class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-msg {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

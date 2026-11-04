@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS library_db;
 CREATE DATABASE IF NOT EXISTS library_db;
 USE library_db;
 
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS Fines (
 -- Triggers
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS trg_after_issue$$
 CREATE TRIGGER trg_after_issue
 AFTER INSERT ON Issue_Records
 FOR EACH ROW
@@ -99,6 +101,7 @@ BEGIN
     WHERE book_id = NEW.book_id;
 END$$
 
+DROP TRIGGER IF EXISTS trg_after_return$$
 CREATE TRIGGER trg_after_return
 AFTER UPDATE ON Issue_Records
 FOR EACH ROW
@@ -133,3 +136,43 @@ FROM Issue_Records i
 JOIN Members m ON i.member_id = m.member_id
 JOIN Books b ON i.book_id = b.book_id
 WHERE i.return_date IS NULL AND i.due_date < CURDATE();
+
+-- SAMPLE DATA INSERTION
+INSERT INTO Authors (author_name) VALUES 
+('R. K. Narayan'), ('A. P. J. Abdul Kalam'), ('Yuval Noah Harari'), 
+('Carl Sagan'), ('Abraham Silberschatz'), ('James Clear'), 
+('Chetan Bhagat'), ('Ruskin Bond'), ('Stephen Hawking'), ('Eric Matthes');
+
+INSERT INTO Categories (category_name) VALUES 
+('Fiction'), ('Biography'), ('History'), ('Science'), ('Technology'), ('Self-Help');
+
+INSERT INTO Publishers (publisher_name, city, phone) VALUES 
+('Sunrise Publications', 'Bengaluru', '080-12345678'),
+('Bluebird Press', 'New Delhi', '011-87654321'),
+('Orchid Books', 'Mumbai', '022-33445566'),
+('Greenleaf Publishers', 'Chennai', '044-99887766'),
+('Meridian House', 'Kolkata', '033-55667788');
+
+INSERT INTO Books (title, author_id, category_id, publisher_id, isbn, publish_year, total_copies, available_copies) VALUES 
+('Malgudi Days', 1, 1, 1, '9780000000011', 1943, 4, 4),
+('Wings of Fire', 2, 2, 2, '9780000000028', 1999, 5, 5),
+('Sapiens', 3, 3, 3, '9780000000035', 2014, 3, 3),
+('Cosmos', 4, 4, 4, '9780000000042', 1980, 1, 1),
+('Database System Concepts', 5, 5, 5, '9780000000059', 2019, 4, 4),
+('Atomic Habits', 6, 6, 1, '9780000000066', 2018, 3, 3),
+('Five Point Someone', 7, 1, 2, '9780000000073', 2004, 4, 4),
+('The Blue Umbrella', 8, 1, 3, '9780000000080', 1980, 2, 2),
+('A Brief History of Time', 9, 4, 4, '9780000000097', 1988, 3, 3),
+('Python Crash Course', 10, 5, 5, '9780000000103', 2015, 3, 3);
+
+INSERT INTO Members (member_name, phone, email, membership_type, join_date) VALUES 
+('Arun Kumar', '9876500001', 'arun.kumar@example.com', 'Student', '2026-06-15'),
+('Priya Sharma', '9876500002', 'priya.sharma@example.com', 'Student', '2026-06-18'),
+('Karthik Raja', '9876500003', 'karthik.raja@example.com', 'Faculty', '2026-06-20'),
+('Divya Nair', '9876500004', 'divya.nair@example.com', 'Public', '2026-07-02'),
+('Mohammed Faizal', '9876500005', 'faizal@example.com', 'Student', '2026-07-10'),
+('Sneha Reddy', '9876500006', 'sneha.reddy@example.com', 'Student', '2026-07-15');
+
+INSERT INTO Staff (staff_name, role, phone, email, hire_date) VALUES 
+('Anita Joseph', 'Senior Librarian', '9811100001', 'anita@library.org', '2020-01-15'),
+('Meena Krishnan', 'Assistant Librarian', '9811100002', 'meena@library.org', '2022-03-10');

@@ -1,16 +1,101 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Library Management System</title>
-</head>
-<body>
-    <h1>Library Management Dashboard</h1>
-    <div>
-        <p>Book titles: {{ total_books }}</p>
-        <p>Copies on shelf: {{ total_copies }}</p>
-        <p>Books on loan: {{ active_loans }}</p>
-        <p>Members: {{ total_members }}</p>
-        <p>Unpaid fines: Rs. {{ unpaid_fines }}</p>
+{% extends "base.html" %}
+{% block title %}Dashboard - Library Management System{% endblock %}
+
+{% block content %}
+<div class="header-area">
+    <h1>Dashboard</h1>
+    <div class="subtitle">Overview of library records, active loans, and overdue items</div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="val">{{ total_books }}</div>
+        <div class="lbl">Book titles ({{ total_copies_all }} copies)</div>
     </div>
-</body>
-</html>
+    <div class="stat-card">
+        <div class="val">{{ total_copies }}</div>
+        <div class="lbl">Copies on shelf</div>
+    </div>
+    <div class="stat-card">
+        <div class="val">{{ active_loans }}</div>
+        <div class="lbl">Books on loan</div>
+    </div>
+    <div class="stat-card">
+        <div class="val">{{ total_members }}</div>
+        <div class="lbl">Members</div>
+    </div>
+    <div class="stat-card">
+        <div class="val danger">Rs. {{ "%.2f"|format(unpaid_fines) }}</div>
+        <div class="lbl">Unpaid fines</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h3>Overdue books</h3>
+        <span style="font-size:0.8rem; color:var(--text-muted);">Read from overdue_books view - Rs. 5 per day</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Issue</th>
+                <th>Member</th>
+                <th>Book</th>
+                <th>Due date</th>
+                <th>Days late</th>
+                <th>Fine so far</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in overdue %}
+            <tr>
+                <td>{{ row.issue_id }}</td>
+                <td><strong>{{ row.member_name }}</strong></td>
+                <td>{{ row.title }}</td>
+                <td><span style="color:var(--danger); font-weight:600;">{{ row.due_date }}</span></td>
+                <td>{{ row.days_overdue }}</td>
+                <td>Rs. {{ "%.2f"|format(row.fine_so_far) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No overdue books right now!</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <h3>Latest issues</h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Issue</th>
+                <th>Book</th>
+                <th>Member</th>
+                <th>Issued on</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in latest_issues %}
+            <tr>
+                <td>{{ row.issue_id }}</td>
+                <td><strong>{{ row.title }}</strong></td>
+                <td>{{ row.member_name }}</td>
+                <td>{{ row.issue_date }}</td>
+                <td>
+                    {% if row.return_date %}
+                        <span class="badge returned">Returned {{ row.return_date }}</span>
+                    {% else %}
+                        <span class="badge issued">With member</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No issue records found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

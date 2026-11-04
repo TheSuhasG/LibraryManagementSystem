@@ -29,13 +29,24 @@ def query(sql, params=(), one=False):
 def dashboard():
     overdue = query("SELECT * FROM overdue_books ORDER BY days_overdue DESC")
     total_books = query("SELECT COUNT(*) as count FROM Books", one=True)['count']
-    total_copies = query("SELECT SUM(available_copies) as count FROM Books", one=True)['count'] or 0
+    total_copies_all = query("SELECT COALESCE(SUM(total_copies), 0) as count FROM Books", one=True)['count']
+    total_copies = query("SELECT COALESCE(SUM(available_copies), 0) as count FROM Books", one=True)['count']
     active_loans = query("SELECT COUNT(*) as count FROM Issue_Records WHERE return_date IS NULL", one=True)['count']
     total_members = query("SELECT COUNT(*) as count FROM Members", one=True)['count']
-    unpaid_fines = query("SELECT SUM(fine_amount) as total FROM Fines WHERE paid = 0", one=True)['total'] or 0.0
+    unpaid_fines = query("SELECT COALESCE(SUM(fine_amount), 0.0) as total FROM Fines WHERE paid = 0", one=True)['total']
+    
+    latest_issues = query("""
+        SELECT i.issue_id, b.title, m.member_name, i.issue_date, i.return_date
+        FROM Issue_Records i
+        JOIN Books b ON i.book_id = b.book_id
+        JOIN Members m ON i.member_id = m.member_id
+        ORDER BY i.issue_id DESC LIMIT 5
+    """)
+    
     return render_template("index.html", overdue=overdue, total_books=total_books,
-                           total_copies=total_copies, active_loans=active_loans,
-                           total_members=total_members, unpaid_fines=unpaid_fines)
+                           total_copies_all=total_copies_all, total_copies=total_copies, 
+                           active_loans=active_loans, total_members=total_members, 
+                           unpaid_fines=unpaid_fines, latest_issues=latest_issues)
 
 if __name__ == "__main__":
     app.run(debug=True)
